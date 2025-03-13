@@ -18,8 +18,8 @@ return new class extends Migration
             $table->date('tanggal');
             $table->timestamps();
 
-            $table->foreign('karyawan_id')->references('id')->on('karyawan')->onDelete('cascade');
-            $table->foreign('shift_id')->references('shift_id')->on('shift')->onDelete('cascade');
+            $table->foreign('karyawan_id')->references('id')->on('karyawans')->onDelete('cascade');
+            $table->foreign('shift_id')->references('id')->on('shifts')->onDelete('cascade');
         });
     }
 

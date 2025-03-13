@@ -23,7 +23,7 @@ return new class extends Migration
             $table->boolean('validated')->default(false); 
             $table->timestamps();
 
-            $table->foreign('karyawan_id')->references('id')->on('karyawan')->onDelete('cascade');
+            $table->foreign('karyawan_id')->references('id')->on('karyawans')->onDelete('cascade');
         });
     }
 

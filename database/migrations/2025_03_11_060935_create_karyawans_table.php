@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('no_telp'); 
             $table->date('tanggal_masuk'); 
             $table->string('status_karyawan'); 
-            $table->string('rfid_number')->unique()->nullable(); 
+            $table->string('rfid_number',16)->unique()->nullable(); 
             $table->integer('saldo_cuti')->default(2); 
             $table->boolean('is_active')->default(true); 
             $table->timestamps();

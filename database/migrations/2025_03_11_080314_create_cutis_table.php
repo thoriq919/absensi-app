@@ -20,7 +20,7 @@ return new class extends Migration
             $table->enum('status_pengajuan', ['pending', 'approve', 'reject'])->default('pending');
             $table->timestamps();
 
-            $table->foreign('karyawan_id')->references('id')->on('karyawan')->onDelete('cascade');
+            $table->foreign('karyawan_id')->references('id')->on('karyawans')->onDelete('cascade');
         });
     }
 
