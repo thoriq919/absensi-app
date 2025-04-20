@@ -32,9 +32,9 @@ class CreateKaryawan extends CreateRecord
         $user = User::create([
             'name' => $userData['name'],
             'email' => $userData['email'],
-            'password' => Hash::make($userData['password']),
+            'password' => $userData['password'],
         ]);
-
+        $user->assignRole('karyawan');
         $karyawanData = $data;
         unset($karyawanData['user']);
         $karyawanData['user_id'] = $user->id;

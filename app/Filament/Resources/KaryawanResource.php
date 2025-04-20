@@ -3,10 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\KaryawanResource\Pages;
+use App\Filament\Resources\KaryawanResource\Pages\CreateKaryawan;
 use App\Filament\Resources\KaryawanResource\RelationManagers;
 use App\Models\Karyawan;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -20,11 +22,16 @@ class KaryawanResource extends Resource
 
     public static ?string $pluralLabel = 'Karyawan';
 
-    protected static ?string $navigationIcon = 'heroicon-o-user-group';
+    protected static ?string $navigationIcon = 'icon-employee';
 
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->with('user');
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->hasRole('admin');
     }
 
     public static function form(Form $form): Form
@@ -48,9 +55,10 @@ class KaryawanResource extends Resource
                         Forms\Components\TextInput::make('user.password')
                             ->label('Password')
                             ->password()
-                            ->required(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord)
+                            ->required(fn (Page $livewire) => ($livewire instanceof CreateKaryawan))
                             ->minLength(8)
-                            ->dehydrateStateUsing(fn ($state) => $state ? Hash::make($state) : null),
+                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                            ->dehydrated(fn ($state) => filled($state))
                     ])->visibleOn(['create', 'edit']),
                 Forms\Components\Section::make('Data Karyawan')
                     ->schema([
@@ -65,19 +73,11 @@ class KaryawanResource extends Resource
                         Forms\Components\TextInput::make('no_telp')
                             ->label('Nomor Telepon')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(15),
                         Forms\Components\DatePicker::make('tanggal_masuk')
                             ->label('Tanggal Masuk')
                             ->required()
                             ->displayFormat('d/m/Y'),
-                        Forms\Components\Select::make('status_karyawan')
-                            ->label('Status Karyawan')
-                            ->options([
-                                'tetap' => 'Tetap',
-                                'kontrak' => 'Kontrak',
-                                'magang' => 'Magang',
-                            ])
-                            ->required(),
                         Forms\Components\TextInput::make('rfid_number')
                             ->label('Nomor RFID')
                             ->maxLength(10) 
@@ -94,12 +94,12 @@ class KaryawanResource extends Resource
                                     $rfid = "0x" . $hexValue;
                                     $set('rfid_number', $rfid);
                                 }),
-                        ]),
+                        ])->visibleOn(['create', 'edit']),
                         Forms\Components\TextInput::make('saldo_cuti')
                             ->label('Saldo Cuti')
                             ->numeric()
                             ->default(2)
-                            ->required(),
+                            ->readOnly(),
                         Forms\Components\Toggle::make('is_active')
                             ->label('Aktif')
                             ->default(true),

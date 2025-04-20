@@ -11,6 +11,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class KaryawanShiftResource extends Resource
@@ -19,10 +20,31 @@ class KaryawanShiftResource extends Resource
 
     public static ?string $pluralLabel = 'Shift Karyawan';
 
-    protected static ?string $navigationIcon = 'heroicon-o-briefcase';
+    protected static ?string $navigationIcon = 'icon-employee-shift';
 
     protected static ?string $navigationGroup = 'Jadwal'; 
+    
     protected static bool $isCollapsibleNavigationGroup = false;
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->hasRole('admin');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->hasRole('admin');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->hasROle('admin');
+    }
+
+    public static function canDeleteAny(): bool
+    {
+        return auth()->user()->hasRole('admin');
+    }
 
     public static function form(Form $form): Form
     {
@@ -38,10 +60,13 @@ class KaryawanShiftResource extends Resource
                     Forms\Components\Select::make('shift_id')
                         ->label('Shift')
                         ->relationship('shift', 'nama') 
+                        ->required(),
+                    Forms\Components\DatePicker::make('tanggal_mulai')
+                        ->label('Tanggal Mulai')
                         ->required()
-                        ->searchable(),
-                    Forms\Components\DatePicker::make('tanggal')
-                        ->label('Tanggal')
+                        ->displayFormat('d/m/Y'),
+                    Forms\Components\DatePicker::make('tanggal_selesai')
+                        ->label('Tanggal Selesai')
                         ->required()
                         ->displayFormat('d/m/Y'),
                 ])
@@ -60,15 +85,25 @@ class KaryawanShiftResource extends Resource
                     ->label('Shift')
                     ->searchable()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('tanggal')
-                    ->label('Tanggal')
+                Tables\Columns\TextColumn::make('tanggal_mulai')
+                    ->label('Tanggal Mulai')
+                    ->date('d/m/Y')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('tanggal_selesai')
+                    ->label('Tanggal Selesai')
                     ->date('d/m/Y')
                     ->sortable(),
             ])
+            ->modifyQueryUsing(function (Builder $query) {
+                if (auth()->check() && auth()->user()->hasRole('karyawan')) {
+                    $query->where('karyawan_id', auth()->user()->karyawan->id);
+                }
+            })
             ->filters([
                 //
                 Tables\Filters\SelectFilter::make('karyawan')
-                    ->relationship('karyawan', 'nama'),
+                    ->relationship('karyawan', 'nama')
+                    ->hidden(fn () => Auth()->user()->hasRole('karyawan')),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

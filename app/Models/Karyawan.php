@@ -13,7 +13,6 @@ class Karyawan extends Model
         'alamat',
         'no_telp',
         'tanggal_masuk',
-        'status_karyawan',
         'rfid_number',
         'saldo_cuti',
         'is_active',
@@ -22,5 +21,10 @@ class Karyawan extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function shift()
+    {
+        return $this->hasOneThrough(Shift::class, KaryawanShift::class, 'karyawan_id', 'id', 'id', 'shift_id');
     }
 }

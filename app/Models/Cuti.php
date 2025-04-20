@@ -2,8 +2,11 @@
 
 namespace App\Models;
 
+use App\Observers\CutiObserver;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Model;
 
+#[ObservedBy([CutiObserver::class])]
 class Cuti extends Model
 {
     //
@@ -12,7 +15,8 @@ class Cuti extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'keterangan',
-        'status_pengajuan'
+        'status_pengajuan',
+        'dokumen_pendukung'
     ];
 
     public function karyawan()

@@ -3,16 +3,12 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\ShiftResource\Pages;
-use App\Filament\Resources\ShiftResource\RelationManagers;
 use App\Models\Shift;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Actions\CreateAction;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ShiftResource extends Resource
 {
@@ -20,10 +16,18 @@ class ShiftResource extends Resource
 
     public static ?string $pluralLabel = 'Shift';
 
-    protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
+    protected static ?string $navigationIcon = 'icon-shift';
 
     protected static ?string $navigationGroup = 'Jadwal'; 
+    
     protected static bool $isCollapsibleNavigationGroup = false;
+
+    protected static ?string $emptyStateHeading = 'Tidak ada data';
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->hasRole('admin');
+    }
 
     public static function form(Form $form): Form
     {

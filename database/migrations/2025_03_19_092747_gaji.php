@@ -24,6 +24,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('karyawan_id')->references('id')->on('karyawans')->onDelete('cascade');
+            $table->unique(['karyawan_id', 'tanggal_gaji']);
         });
     }
 
