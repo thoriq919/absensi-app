@@ -39,11 +39,11 @@ class AbsensiResource extends Resource
                 TextColumn::make('row_number')
                     ->label('No')
                     ->state(
-                        static function (\Filament\Tables\Columns\TextColumn $column, $record, $rowLoop) {
+                        static function ($rowLoop) {
                             return $rowLoop->iteration;
                         }
                     ),
-                TextColumn::make('date')->label('Tanggal')->date(),
+                TextColumn::make('date')->label('Tanggal')->date()->sortable(),
                 TextColumn::make('name')->label('Nama')->sortable()->searchable(),
                 TextColumn::make('time')->label('Waktu'),
                 TextColumn::make('status')
@@ -62,8 +62,6 @@ class AbsensiResource extends Resource
                         default => 'success',
                     })
                     ->formatStateUsing(fn (string $state): string => ucfirst($state)),
-                TextColumn::make('created_at')->label('Created At')->dateTime()->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')->label('Updated At')->dateTime()->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort(function (Builder $query): Builder{
                 return $query

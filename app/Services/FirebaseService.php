@@ -29,14 +29,14 @@ class FirebaseService
     public function syncAttendanceToDatabase()
     {
         $records = $this->getAttendanceRecords();
-
         foreach ($records as $date => $uids) {
             foreach ($uids as $uid => $record) {
                 // Cari nama karyawan berdasarkan UID
-                $karyawan = Karyawan::has('shift')->where('rfid_number', $uid)->first();
+                $cleanUid = preg_replace('/-\d+$/', '', $uid);
+                $karyawan = Karyawan::has('shift')->where('rfid_number', $cleanUid)->first();
                 
                 if (!$karyawan) {
-                    // Log::warning("Karyawan dengan UID {$uid} tidak ditemukan.");
+                    Log::warning("Karyawan dengan UID {$cleanUid} tidak ditemukan.");
                     continue; // Lewati jika karyawan tidak ditemukan
                 }
 

@@ -20,7 +20,7 @@ class CalculatePayroll extends Command
      * @var string
      */
     
-    protected $signature = 'payroll:calculate {month}';
+    protected $signature = 'payroll:calculate {month} {year}';
 
     /**
      * The console command description.
@@ -35,17 +35,15 @@ class CalculatePayroll extends Command
     public function handle()
     {
         //
-
-
-        $month = $this->argument('month');
-        $startDate = Carbon::parse("$month-01")->startOfMonth();
-        $endDate = $startDate->copy()->endOfMonth()->startOfDay();
-
+        $month = (int)$this->argument('month');
+        $year = (int)$this->argument('year');
+        $hariKerja = cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $startDate = sprintf('%04d-%02d-01', $year, $month);
+        $endDate = sprintf('%04d-%02d-%02d', $year, $month, $hariKerja);
         $karyawanShifts = KaryawanShift::where('tanggal_mulai', '<=', $endDate)
             ->where('tanggal_selesai', '>=', $startDate)
             ->with(['shift', 'karyawan'])
             ->get();
-        
         foreach ($karyawanShifts as $ks) {
             $karyawanId = $ks->karyawan_id;
             $shift = $ks->shift;
@@ -68,7 +66,6 @@ class CalculatePayroll extends Command
             }
             
             // Hitung kehadiran
-            $hariKerja = 30; // Asumsi 30 hari kerja
             $hariHadir = $absensis->groupBy('date')->count();
             $hariTidakHadir = $hariKerja - $hariHadir;
             
@@ -91,61 +88,55 @@ class CalculatePayroll extends Command
                     // Keterlambatan
                     $jamCheckIn = Carbon::parse($checkIn->time);
                     $selisihMenit = $jamMulai->diffInMinutes($jamCheckIn, false);
-                    if ($selisihMenit > 60) { // Terlambat > 1 jam
+                    if ($selisihMenit > 60) { 
                         $potonganKeterlambatan += 10000;
                     }
                 }
 
                 if ($checkOut && $checkIn) {
-                    // Lembur
                     $jamCheckOut = Carbon::parse($checkOut->time);
                     $selisihLembur = $jamCheckOut->diffInMinutes($jamSelesai, false);
                     if ($selisihLembur > 0) {
-                        $totalJamLembur += ceil($selisihLembur / 60); // Bulatkan ke atas per jam
+                        $totalJamLembur += ceil($selisihLembur / 60); 
                     }
                 }
+
+                $lembur = $totalJamLembur * 10000;
+                
+                $potongan = $potonganKetidakhadiran + $potonganKeterlambatan;
+                
+                $gajiPokok = 1200000;
+                $gajiBersih = $gajiPokok + $tunjanganKehadiran + $lembur - $potongan;
+                Log::info('creating');
+                DB::transaction(function () use ($karyawanId, $endDate, $gajiPokok, $tunjanganKehadiran, $lembur, $potongan, $gajiBersih, $namaKaryawan) {
+                    $gaji = Gaji::updateOrCreate(
+                        [
+                            'karyawan_id' => $karyawanId,
+                            'tanggal_gaji' => $endDate,
+                        ],
+                        [
+                            'gaji_pokok' => $gajiPokok,
+                            'tunjangan_kehadiran' => $tunjanganKehadiran,
+                            'lembur' => $lembur,
+                            'potongan' => $potongan,
+                            'gaji_bersih' => $gajiBersih,
+                            'validated' => 0,
+                        ]
+                    );
+
+                    // Broadcast gaji update
+                    event(new GajiCreated($gaji));
+
+                    // Notifikasi real-time
+                    event(new GajiNotification(
+                        'Gaji Dihitung',
+                        "Gaji untuk $namaKaryawan pada {$endDate} telah dihitung.",
+                        'success'
+                    ));
+                });
+
+                $this->info("Gaji untuk $namaKaryawan ($month) berhasil dihitung.");
             }
-
-            // Hitung lembur
-            $lembur = $totalJamLembur * 10000;
-            
-            // Total potongan
-            $potongan = $potonganKetidakhadiran + $potonganKeterlambatan;
-            
-            // Gaji bersih
-            $gajiPokok = 1200000;
-            $gajiBersih = $gajiPokok + $tunjanganKehadiran + $lembur - $potongan;
-            
-            // Simpan ke tabel gajis
-            DB::transaction(function () use ($karyawanId, $endDate, $gajiPokok, $tunjanganKehadiran, $lembur, $potongan, $gajiBersih, $namaKaryawan) {
-                Log::info("Menyimpan gaji untuk karyawan_id: $karyawanId, tanggal_gaji: {$endDate->toDateString()}");
-                $gaji = Gaji::updateOrCreate(
-                    [
-                        'karyawan_id' => $karyawanId,
-                        'tanggal_gaji' => $endDate->toDateString(),
-                    ],
-                    [
-                        'gaji_pokok' => $gajiPokok,
-                        'tunjangan_kehadiran' => $tunjanganKehadiran,
-                        'lembur' => $lembur,
-                        'potongan' => $potongan,
-                        'gaji_bersih' => $gajiBersih,
-                        'validated' => 0,
-                    ]
-                );
-
-                // Broadcast gaji update
-                event(new GajiCreated($gaji));
-
-                // Notifikasi real-time
-                event(new GajiNotification(
-                    'Gaji Dihitung',
-                    "Gaji untuk $namaKaryawan pada {$endDate->format('d M Y')} telah dihitung.",
-                    'success'
-                ));
-            });
-
-            $this->info("Gaji untuk $namaKaryawan ($month) berhasil dihitung.");
         }
     }
 }

@@ -159,8 +159,6 @@ class GajiResource extends Resource
     {
         return [
             'index' => Pages\ListGajis::route('/'),
-            'create' => Pages\CreateGaji::route('/create'),
-            'edit' => Pages\EditGaji::route('/{record}/edit'),
         ];
     }
 }

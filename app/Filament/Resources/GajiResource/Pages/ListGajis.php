@@ -4,6 +4,7 @@ namespace App\Filament\Resources\GajiResource\Pages;
 
 use App\Events\GajiNotification;
 use App\Filament\Resources\GajiResource;
+use Carbon\Carbon;
 use Filament\Actions;
 use Filament\Actions\Action;
 use Filament\Forms\Components\DatePicker;
@@ -28,13 +29,13 @@ class ListGajis extends ListRecords
                     ->required()
                     ->displayFormat('Y-m')
                     ->format('Y-m')
-                    ->maxDate(now()->endOfMonth())
-                    ->default(now()->startOfMonth()),
+                    ->maxDate(now()->subMonth()->endOfMonth())
+                    ->default(now()->subMonth()->startOfMonth()),
             ])
             ->action(function (array $data) {
                 try {
-                    $month = $data['month'];
-                    if (!preg_match('/^\d{4}-\d{2}$/', $month)) {
+                    $monthInput = $data['month'];
+                    if (!preg_match('/^\d{4}-\d{2}$/', $monthInput)) {
                         Notification::make()
                             ->title('Error')
                             ->body('Format periode harus YYYY-MM.')
@@ -42,22 +43,28 @@ class ListGajis extends ListRecords
                             ->send();
                         return;
                     }
+                    [$year, $month] = explode('-', $monthInput);
+                    $year = (int)$year;
+                    $month = (int)$month;
 
-                    $exitCode = Artisan::call('payroll:calculate', ['month' => $month]);
+                    $exitCode = Artisan::call('payroll:calculate', [
+                        'month' => $month,
+                        'year' => $year,
+                    ]);
 
                     if ($exitCode === 0) {
                         Notification::make()
                             ->title('Sukses')
-                            ->body("Perhitungan gaji untuk $month berhasil.")
+                            ->body("Perhitungan gaji untuk bulan $month berhasil.")
                             ->success()
                             ->send();
 
-                        event(new GajiNotification(
-                            'Perhitungan Gaji Selesai',
-                            "Perhitungan gaji untuk periode $month telah selesai.",
-                            'success'
-                        ));
-                    } else {
+                            event(new GajiNotification(
+                                'Perhitungan Gaji Selesai',
+                                "Perhitungan gaji untuk periode $month telah selesai.",
+                                'success'
+                            ));
+                        } else {
                         $output = Artisan::output();
                         Log::error('Payroll calculate failed: ' . $output);
                         Notification::make()
