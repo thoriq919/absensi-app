@@ -86,6 +86,8 @@ class CutiResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->recordAction(null)
+            ->recordUrl(null)
             ->columns([
                 //
                 Tables\Columns\TextColumn::make('karyawan.nama')

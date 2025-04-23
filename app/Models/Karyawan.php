@@ -27,4 +27,10 @@ class Karyawan extends Model
     {
         return $this->hasOneThrough(Shift::class, KaryawanShift::class, 'karyawan_id', 'id', 'id', 'shift_id');
     }
+
+    public function karyawanShift()
+    {
+        return $this->hasOne(KaryawanShift::class);
+    }
+
 }
