@@ -13,4 +13,9 @@ class Absensi extends Model
     protected $fillable = [
         'name', 'date', 'time', 'status'
     ];
+
+    public function karyawan()
+    {
+        return $this->hasOne(Karyawan::class, 'nama', 'name');
+    }
 }

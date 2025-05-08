@@ -89,10 +89,12 @@ class KaryawanResource extends Resource
                             Forms\Components\Actions\Action::make('generate_rfid')
                                 ->label('Generate Nomor RFID')
                                 ->action(function ($set) {
-                                    $randomBytes = random_bytes(4);
-                                    $hexValue = bin2hex($randomBytes);
-                                    $rfid = "0x" . $hexValue;
-                                    $set('rfid_number', $rfid);
+                                    do {
+                                        $randomBytes = random_bytes(4);
+                                        $hexValue = bin2hex($randomBytes);
+                                    } while ($hexValue[0] === '0');
+
+                                    $set('rfid_number', $hexValue);
                                 }),
                         ])->visibleOn(['create', 'edit']),
                         Forms\Components\TextInput::make('saldo_cuti')

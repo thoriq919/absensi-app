@@ -26,16 +26,6 @@ class GajiResource extends Resource
 
     protected static ?string $navigationIcon = 'icon-payment';
 
-    public static function canViewAny(): bool
-    {
-        return auth()->user()->hasRole(['admin']);
-    }
-
-    public static function canView(Model $record): bool
-    {
-        return auth()->user()->hasRole(['admin','karyawan']);
-    }
-
     public static function canCreate(): bool
     {
         return auth()->user()->hasRole(['karyawan']);
@@ -95,6 +85,12 @@ class GajiResource extends Resource
                     ])
                     ->label('Status Validasi'),
             ])
+            ->modifyQueryUsing(function (Builder $query) {
+                if (auth()->check() && auth()->user()->hasRole('karyawan')) {
+                    $query->where('karyawan_id', auth()->user()->karyawan->id);
+                }
+                $query->orderBy('created_at', 'desc');
+            })
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
