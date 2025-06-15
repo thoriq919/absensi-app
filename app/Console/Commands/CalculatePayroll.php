@@ -78,7 +78,7 @@ class CalculatePayroll extends Command
             // Hitung keterlambatan dan lembur
             $potonganKeterlambatan = 0;
             $totalJamLembur = 0;
-
+            
             $absensiPerHari = $absensis->groupBy('date');
             foreach ($absensiPerHari as $date => $records) {
                 $checkIn = $records->where('status', 'check-in')->first();

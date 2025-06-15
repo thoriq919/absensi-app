@@ -49,34 +49,21 @@ class GajiResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_gaji')
-                    ->label('Tanggal Gaji')
-                    ->date()
+                    ->label('Bulan')
+                    ->date('F Y')
                     ->sortable(),
                 Tables\Columns\IconColumn::make('validated')
                     ->label('Validated')
                     ->boolean()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('gaji_pokok')
-                    ->label('Gaji Pokok')
-                    ->money('IDR')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('tunjangan_kehadiran')
-                    ->label('Tunjangan')
-                    ->money('IDR')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('lembur')
-                    ->label('Lembur')
-                    ->money('IDR')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('potongan')
-                    ->label('Potongan')
-                    ->money('IDR')
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('gaji_bersih')
-                    ->label('Gaji Bersih')
-                    ->money('IDR')
-                    ->sortable(),
             ])
+            ->actions([
+                Tables\Actions\Action::make('Detail')
+                    ->label('Lihat Detail')
+                    ->icon('heroicon-o-eye')
+                    ->url(fn ($record) => route('filament.admin.pages.gaji-detail') . '?record=' . $record->id)
+                    ->openUrlInNewTab(),
+            ])            
             ->filters([
                 Tables\Filters\SelectFilter::make('validated')
                     ->options([
