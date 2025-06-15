@@ -15,6 +15,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 
 class KaryawanResource extends Resource
 {
@@ -92,6 +93,9 @@ class KaryawanResource extends Resource
                                     do {
                                         $randomBytes = random_bytes(4);
                                         $hexValue = bin2hex($randomBytes);
+                                        Http::put('https://absensi-4312e-default-rtdb.firebaseio.com/write_uid.json', [
+                                            'uid' => $hexValue,
+                                        ]);
                                     } while ($hexValue[0] === '0');
 
                                     $set('rfid_number', $hexValue);
