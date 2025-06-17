@@ -18,6 +18,11 @@ class GajiDetail extends Page
     public $events = [];
     public $gaji;
 
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
+
     public function mount(): void
     {
         $id = request()->get('record');
