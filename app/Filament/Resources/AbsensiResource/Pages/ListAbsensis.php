@@ -13,7 +13,7 @@ class ListAbsensis extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make()->label('Lakukan Absen')->icon('heroicon-o-plus'),
+            
         ];
     }
 

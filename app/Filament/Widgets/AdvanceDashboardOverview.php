@@ -14,13 +14,16 @@ class AdvanceDashboardOverview extends BaseWidget
     protected function getStats(): array
     {
         $today = Carbon::today();
+        $startOfWeek = $today->copy()->startOfWeek();
+        $endOfWeek = $today->copy()->endOfWeek();
         $currentTime = Carbon::now();
-        $totalCuti = Cuti::whereBetween('tanggal_mulai', [$today->startOfWeek(), $today->endOfWeek()])
+        $totalCuti = Cuti::whereBetween('tanggal_mulai', [$startOfWeek, $endOfWeek])
             ->where('status_pengajuan', 'approve')
             ->count();
         $totalAbsen = Absensi::whereDate('created_at',$today)
             ->distinct('name')
             ->count();
+            
         $totalKaryawanOnShift = Karyawan::where('is_active', true)
             ->whereHas('karyawanShift', function ($query) use ($today) {
                 $query->where('tanggal_mulai', '<=', $today)
