@@ -17,7 +17,7 @@ class CalculatePayrollPerDay extends Command
      *
      * @var string
      */
-    protected $signature = 'payroll:calculate {tanggal}';
+    protected $signature = 'payroll:calculated';
 
     /**
      * The console command description.

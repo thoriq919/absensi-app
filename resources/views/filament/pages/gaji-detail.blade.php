@@ -2,37 +2,6 @@
     <div class="w-full overflow-x-auto">
         <div id="calendar" class="min-w-full"></div>
     </div>
-
-    <div class="mt-6">
-        <h2 class="text-lg font-bold mb-4">Rincian Gaji</h2>
-
-        <div class="bg-white rounded-xl shadow p-4 space-y-2">
-            <div class="flex justify-between">
-                <span class="text-gray-600 font-medium">Gaji Pokok</span>
-                <span class="font-semibold">Rp {{ number_format($gaji->gaji_pokok) }}</span>
-            </div>
-
-            <div class="flex justify-between">
-                <span class="text-gray-600 font-medium">Tunjangan</span>
-                <span class="font-semibold">Rp {{ number_format($gaji->tunjangan_kehadiran) }}</span>
-            </div>
-
-            <div class="flex justify-between">
-                <span class="text-gray-600 font-medium">Lembur</span>
-                <span class="font-semibold">Rp {{ number_format($gaji->lembur) }}</span>
-            </div>
-
-            <div class="flex justify-between">
-                <span class="text-gray-600 font-medium">Potongan</span>
-                <span class="font-semibold">Rp {{ number_format($gaji->potongan) }}</span>
-            </div>
-
-            <div class="flex justify-between border-t pt-2 mt-2">
-                <span class="text-green-600 font-bold">Gaji Bersih</span>
-                <span class="text-green-600 font-bold">Rp {{ number_format($gaji->gaji_bersih) }}</span>
-            </div>
-        </div>
-    </div>
 </x-filament-panels::page>
 
 @push('scripts')

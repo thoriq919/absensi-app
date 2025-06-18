@@ -101,14 +101,6 @@ class KaryawanResource extends Resource
                                     $set('rfid_number', $hexValue);
                                 }),
                         ])->visibleOn(['create', 'edit']),
-                        Forms\Components\TextInput::make('saldo_cuti')
-                            ->label('Saldo Cuti')
-                            ->numeric()
-                            ->default(2)
-                            ->readOnly(),
-                        Forms\Components\Toggle::make('is_active')
-                            ->label('Aktif')
-                            ->default(true),
                     ]),
             ]);
     }

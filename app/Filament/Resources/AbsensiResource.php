@@ -92,7 +92,7 @@ class AbsensiResource extends Resource
                         
                             $durasi = $jamMasuk->diffInHours($jamPulang);
                         
-                            if ($durasi <= 4) {
+                            if ($durasi < 4) {
                                 return 'Tidak Valid';
                             }
                         
